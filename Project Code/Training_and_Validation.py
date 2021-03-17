@@ -7,6 +7,7 @@ from tensorflow.keras.optimizers import Adagrad
 from tensorflow.keras.utils import to_categorical
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
+from tensorflow.keras import callbacks
 from pyimagesearch.cancernet import CancerNet
 from pyimagesearch import config
 from imutils import paths
@@ -94,6 +95,13 @@ testGen = valAug.flow_from_directory(
 	shuffle=False,
 	batch_size=BS)
 
+# include early stopping through callback
+early_stopping = callbacks.EarlyStopping(
+    min_delta=0.002,
+    patience=15,
+    restore_best_weights=True,
+)
+
 # initialize our CancerNet model and compile it
 model = CancerNet.build(width=48, height=48, depth=3,
 	classes=2)
@@ -107,7 +115,8 @@ H = model.fit(
 	validation_data=valGen,
 	validation_steps=totalVal // BS,
 	class_weight=classWeight,
-	epochs=NUM_EPOCHS)
+	epochs=NUM_EPOCHS,
+	callbacks=[early_stopping])
 
 model = CancerNet.build(width=48, height=48, depth=3,
 	classes=2)
