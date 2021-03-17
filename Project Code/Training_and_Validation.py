@@ -118,17 +118,17 @@ H = model.fit(
 	epochs=NUM_EPOCHS,
 	callbacks=[early_stopping])
 
-model = CancerNet.build(width=48, height=48, depth=3,
-	classes=2)
-opt = Adagrad(lr=INIT_LR, decay=INIT_LR / NUM_EPOCHS)
-model.compile(loss="binary_crossentropy", optimizer=opt,
-	metrics=["accuracy"])
+# model = CancerNet.build(width=48, height=48, depth=3,
+# 	classes=2)
+# opt = Adagrad(lr=INIT_LR, decay=INIT_LR / NUM_EPOCHS)
+# model.compile(loss="binary_crossentropy", optimizer=opt,
+# 	metrics=["accuracy"])
 
-# fit the model
-H = model.fit(
-	x=trainGen,
-	steps_per_epoch=totalTrain // BS,
-	validation_data=valGen,
-	validation_steps=totalVal // BS,
-	class_weight=classWeight,
-	epochs=NUM_EPOCHS)
+# # fit the model
+# H = model.fit(
+# 	x=trainGen,
+# 	steps_per_epoch=totalTrain // BS,
+# 	validation_data=valGen,
+# 	validation_steps=totalVal // BS,
+# 	class_weight=classWeight,
+# 	epochs=NUM_EPOCHS)
