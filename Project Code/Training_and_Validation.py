@@ -118,17 +118,15 @@ H = model.fit(
 	epochs=NUM_EPOCHS,
 	callbacks=[early_stopping])
 
-# model = CancerNet.build(width=48, height=48, depth=3,
-# 	classes=2)
-# opt = Adagrad(lr=INIT_LR, decay=INIT_LR / NUM_EPOCHS)
-# model.compile(loss="binary_crossentropy", optimizer=opt,
-# 	metrics=["accuracy"])
+print('-'*15, 'evalution', '-'*15)
 
-# # fit the model
-# H = model.fit(
-# 	x=trainGen,
-# 	steps_per_epoch=totalTrain // BS,
-# 	validation_data=valGen,
-# 	validation_steps=totalVal // BS,
-# 	class_weight=classWeight,
-# 	epochs=NUM_EPOCHS)
+H_history = pd.DataFrame(H.history)
+print("Minimum Validation Loss: {:0.4f}".format(H_history['val_loss'].min()))
+plt.style.use("ggplot")
+H_history.loc[0:, ['loss', 'val_loss', 'accuracy', 'val_accuracy]].plot()
+plt.title('Training Loss and Accuracy on Dataset')
+plt.xlabel('Epoch')
+plt.ylabel("Loss/Accuracy")
+plt.savefig(args["plot"])
+
+		   
