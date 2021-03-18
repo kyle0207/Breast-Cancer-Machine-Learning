@@ -120,6 +120,29 @@ H = model.fit(
 
 print('-'*15, 'evalution', '-'*15)
 
+# use the trained model to make predictions on the test dataset
+testGen.reset()
+predIdxs = model.predict(x=testGen, steps=(totalTest // BS) + 1)
+
+# find the index of the label with corresponding largest predicted probability
+predIdxs = np.argmax(predIdxs, axis=1)
+
+# confusion matrix
+cm = confusion_matrix(testGen.classes, predIdxs)
+total = sum(sum(cm))
+
+# compute accuracy, sensitivity, and specificity
+accuracy = (cm[0, 0] + cm[1, 1])/total
+sensitivity = cm[0, 0]/(cm[0, 0] + cm[0, 1])
+specificity = cm[1, 1]/(cm[1, 0] + cm[1, 1])
+
+# print the results
+print(cm)
+print("acc: {:.4f}".format(accuracy))
+print("sensitivity: {:.4f}".format(sensitivity))
+print("specificity: {:.4f}".format(specificity))
+
+# training loss and accuracy plot
 H_history = pd.DataFrame(H.history)
 print("Minimum Validation Loss: {:0.4f}".format(H_history['val_loss'].min()))
 plt.style.use("ggplot")
@@ -128,5 +151,3 @@ plt.title('Training Loss and Accuracy on Dataset')
 plt.xlabel('Epoch')
 plt.ylabel("Loss/Accuracy")
 plt.savefig(args["plot"])
-
-		   
