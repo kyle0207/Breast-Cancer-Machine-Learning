@@ -7,70 +7,61 @@
 
 
 from pathlib import Path
+import os
+os.chdir('C:\\Users\\liewz\\Desktop\\Imperial\\Academic\\Year 2\\I-Explore\\breast-cancer-classification\\breast-cancer-classification') 
 
-Path.cwd()
+from zipfile import ZipFile
+from imutils import paths
+import File_Paths
+import random, shutil, os
+from sklearn.model_selection import KFold
+import numpy as np
+# Path.cwd()
 
 
 # In[ ]:
 
 
-import os
-os.chdir('../Downloads') #this is where the zipfile of datasets should be
+
+os.chdir('C:\\Users\\liewz\\Desktop\\Imperial\\Academic\\Year 2\\I-Explore\\breast-cancer-classification\\breast-cancer-classification') 
+#this is where the zipfile of datasets should be
 #change to downloads
 
 
 # In[ ]:
 
-base_dir='../Documents'
+base_dir=File_Paths.base_dir
 
 datasets_dir = f'{base_dir}/datasets'
-os.mkdir(datasets_dir)
+try:
+    os.mkdir(datasets_dir)
+except:
+    None
+
 orig_dir = f'{base_dir}/datasets/orig'
-os.mkdir(orig_dir)
+try:
+    os.mkdir(orig_dir)
+except:
+    None
 
 
 # In[ ]:
 
 
-from zipfile import ZipFile
+
 with ZipFile('./archive.zip', 'r') as zip_ref:
     zip_ref.extractall(f'{base_dir}/datasets/orig')
 
 
-# In[ ]:
-
-
-get_ipython().system('pip install opencv-python')
-#installing openCV, needed by imutils
-
-
-# In[ ]:
-
-
-get_ipython().system('pip install imutils')
-#installing imutils package
-
-
-# In[ ]:
-
-
-import os
 os.chdir(f'{base_dir}')
 #change to downloads
 
-
-# In[ ]:
-
-
-from imutils import paths
-import File_Paths
-import random, shutil, os
-
+#%%
 #removing additional overlapping files
 IDC_reg_filePath = "./datasets/orig/IDC_regular_ps50_idx5"
 if os.path.exists(IDC_reg_filePath):
     shutil.rmtree(IDC_reg_filePath) 
-
+#%%
 # taking the paths of the original dataset directory and randomly shuffling them
 patientPaths = (os.listdir(File_Paths.ORIG_INPUT_DATASET))
 random.seed(77)
@@ -81,50 +72,46 @@ i = int(len(patientPaths) * File_Paths.TRAIN_SPLIT)
 trainPaths = patientPaths[:i]
 testPaths = patientPaths[i:]
 
-# separate a defined percentage (validation_split) of train set into validation
-# i = int(len(trainPaths) * File_Paths.VAL_SPLIT)
-# validationPaths = trainPaths[:i]
-# trainPaths = trainPaths[i:]
 
-# defining new datasets
-datasets = [
-    ("training", trainPaths, File_Paths.TRAIN_PATH),
-    # ("validation", validationPaths, File_Paths.VAL_PATH),
-    ("testing", testPaths, File_Paths.TEST_PATH)
-]
+kfold=KFold(5, True, 1)
+split_indices=list(kfold.split(trainPaths))
+train_val_splits=[[[],[]],[[],[]],[[],[]],[[],[]],[[],[]]]
+
+for i in range(len(split_indices)):
+    for j in range(len(split_indices[0])):
+        for k in split_indices[i][j]:
+            train_val_splits[i][j].append(trainPaths[k])
 
 
-# In[ ]:
-
-
-imagePaths = list(paths.list_images(orig_dir))
 
 print('PatientPaths: ', patientPaths [:2:], 'Length:', len(patientPaths))
 print('TrainPaths: ', trainPaths [:2:],'Length:', len(trainPaths))
 print('TestPaths:', testPaths [:2:], 'Length:', len(testPaths))
 
-print('imagePaths: ',imagePaths [:2:])
+
+#%%
+traindir = [[],[],[],[],[]]
+for i in range(len(train_val_splits)):
+    for j in range(len(train_val_splits[i][0])):
+        traindir[i].append(f"{base_dir}/datasets/orig/{train_val_splits[i][0][j]}")
 
 
-# In[ ]:
+imageTrainPaths=[[],[],[],[],[]]
+for i in range(len(traindir)):
+    for j in range(len(traindir[i])):
+        imageTrainPaths[i] += list(paths.list_images(traindir[i][j]))
 
 
-traindir = []
-for i in range(len(trainPaths)):
-    traindir.append(f"{base_dir}/datasets/orig/{trainPaths[i]}")
-print(traindir)
+validationdir = [[],[],[],[],[]]
+for i in range(len(train_val_splits)):
+    for j in range(len(train_val_splits[i][1])):
+        validationdir[i].append(f"{base_dir}/datasets/orig/{train_val_splits[i][1][j]}")
 
 
-# In[ ]:
-
-
-imageTrainPaths = []
-for i in range (len(trainPaths)):
-    imageTrainPaths += (paths.list_images(traindir[i]))
-
-
-# In[ ]:
-
+imageValidationPaths = [[],[],[],[],[]]
+for i in range(len(validationdir)):
+    for j in range(len(validationdir[i])):
+        imageValidationPaths[i] += list(paths.list_images(validationdir[i][j]))
 
 testdir = []
 for i in range(len(testPaths)):
@@ -132,23 +119,35 @@ for i in range(len(testPaths)):
 
 imageTestPaths = []
 for i in range (len(testPaths)):
-    imageTestPaths += (paths.list_images(testdir[i]))
+    imageTestPaths += list(paths.list_images(testdir[i]))
+
+fulltraindir=[]
+for i in trainPaths:
+    fulltraindir.append(f"{base_dir}/datasets/orig/{i}")
+
+fullimageTrainPaths=[]
+for i in fulltraindir:
+    fullimageTrainPaths += list(paths.list_images(i))
+#%%
+# defining new datasets
+datasets = [
+    ("training_1", imageTrainPaths[0], File_Paths.TRAIN_PATH_1),
+    ("validation_1", imageValidationPaths[0], File_Paths.VAL_PATH_1),
+    ("training_2", imageTrainPaths[1], File_Paths.TRAIN_PATH_2),
+    ("validation_2", imageValidationPaths[1], File_Paths.VAL_PATH_2),
+    ("training_3", imageTrainPaths[2], File_Paths.TRAIN_PATH_3),
+    ("validation_3", imageValidationPaths[2], File_Paths.VAL_PATH_3),
+    ("training_4", imageTrainPaths[3], File_Paths.TRAIN_PATH_4),
+    ("validation_4", imageValidationPaths[3], File_Paths.VAL_PATH_4),
+    ("training_5", imageTrainPaths[4], File_Paths.TRAIN_PATH_5),
+    ("validation_5", imageValidationPaths[4], File_Paths.VAL_PATH_5),    
+    
+    ("full_training", fullimageTrainPaths, File_Paths.FULL_TRAIN),
+    ("testing", imageTestPaths, File_Paths.TEST_PATH),   
+]
 
 
-# In[ ]:
-
-
-# validationdir = []
-# for i in range(len(validationPaths)):
-#     validationdir.append(f"../Documents/datasets/orig/{validationPaths[i]}")
-
-# imageValidationPaths = []
-# for i in range (len(validationPaths)):
-#     imageValidationPaths += (paths.list_images(validationdir[i]))
-
-
-# In[ ]:
-
+#%%
 
 for (dType, imagePaths, baseOutput) in datasets:
     # show which data split we are creating
@@ -160,7 +159,7 @@ for (dType, imagePaths, baseOutput) in datasets:
         os.makedirs(baseOutput)
 
     # loop over the input image paths
-    for inputPath in imageTrainPaths:
+    for inputPath in imagePaths:
         # extract the filename of the input image and extract the
         # class label ("0" for "negative" and "1" for "positive")
         filename = inputPath.split(os.path.sep)[-1]
@@ -178,44 +177,6 @@ for (dType, imagePaths, baseOutput) in datasets:
         # the image itself
         p = os.path.sep.join([labelPath, filename])
         shutil.copy2(inputPath, p)
-
-    for inputPath in imageTestPaths:
-        # extract the filename of the input image and extract the
-        # class label ("0" for "negative" and "1" for "positive")
-        filename = inputPath.split(os.path.sep)[-1]
-        label = filename[-5:-4]
-
-        # build the path to the label directory
-        labelPath = os.path.sep.join([baseOutput, label])
-
-        # if the label output directory does not exist, create it
-        if not os.path.exists(labelPath):
-            print("[INFO] 'creating {}' directory".format(labelPath))
-            os.makedirs(labelPath)
-
-        # construct the path to the destination image and then copy
-        # the image itself
-        p = os.path.sep.join([labelPath, filename])
-        shutil.copy2(inputPath, p)
-        
-    # for inputPath in imageValidationPaths:
-    #     # extract the filename of the input image and extract the
-    #     # class label ("0" for "negative" and "1" for "positive")
-    #     filename = inputPath.split(os.path.sep)[-1]
-    #     label = filename[-5:-4]
-
-    #     # build the path to the label directory
-    #     labelPath = os.path.sep.join([baseOutput, label])
-
-    #     # if the label output directory does not exist, create it
-    #     if not os.path.exists(labelPath):
-    #         print("[INFO] 'creating {}' directory".format(labelPath))
-    #         os.makedirs(labelPath)
-
-    #     # construct the path to the destination image and then copy
-    #     # the image itself
-    #     p = os.path.sep.join([labelPath, filename])
-    #     shutil.copy2(inputPath, p)
 
 
 # In[ ]:
