@@ -34,7 +34,7 @@ This provides the architecture on which the neural network uses. This is taken f
 Contains all the file paths necessary for the project
 
 * **Final_Cleaning_Dataset.py**:
-Re-organizes and cleans the Kaggle dataset (https://www.kaggle.com/paultimothymooney/breast-histopathology-images) after unpacking it from the zip file. This code will make sure that a directory is made for each dataset that will be used in a 5-fold cross validation (k=5) process. The images are randomly shuffled by patient ID (to avoid biological bias) into training and testing sets. Adapted from the tutorial mentioned above. 'Project_Cleaning_Datasets.py' (in the 'Non-essentials folder') is a older version of the code that randomly separates the same dataset into train, validation and testing (i.e. not for cross-validation).
+Re-organizes and cleans the Kaggle dataset (https://www.kaggle.com/paultimothymooney/breast-histopathology-images) after unpacking it from the zip file. This code will make sure that a directory is made for each dataset that will be used in a 5-fold cross validation (k=5) process. The images are randomly shuffled by patient ID (to avoid biological bias) into training and testing sets. Adapted from the tutorial mentioned above. 'Project_Cleaning_Datasets.py' (in the *'Non-essentials folder'*) is an older version of the code that randomly separates the same dataset into train, validation and testing (i.e. not for cross-validation).
 
 * **Training_and_Validation.py**:
 The code that does the deep learning of the data. It also gives the performance metrics for each trained model.
