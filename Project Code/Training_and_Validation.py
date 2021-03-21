@@ -8,14 +8,25 @@ from tensorflow.keras.utils import to_categorical
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 from tensorflow.keras import callbacks
-from pyimagesearch.cancernet import CancerNet
-from pyimagesearch import config
 from imutils import paths
 import matplotlib.pyplot as plt
 import numpy as np
 import argparse
 import os
+import pandas as pd
 
+"""IMPORTANT"""
+
+#only for google colab GPU
+# os.chdir('/content/drive/My Drive/Machine Learning/')
+#for kyle
+os.chdir('C:\\Users\\liewz\\Desktop\\Imperial\\Academic\\Year 2\\I-Explore\\breast-cancer-classification\\breast-cancer-classification')
+
+#otherwise change this to whatever the base directory in File_Paths is.
+
+
+import File_Paths
+from Neural_Net import CancerNet
 #%%
 #initialising key parameters for training.
 NUM_EPOCHS = 40 #number of epochs
@@ -24,11 +35,52 @@ BS = 32 #batch size
 
 augmentdata=1
 
+base_dir=File_Paths.base_dir
+#%%
+try:
+    os.mkdir(f'{base_dir}\\models')
+except:
+    None
 
 #%%
-TRAIN_PATH = config.TRAIN_PATH#insert training path
-VAL_PATH = config.VAL_PATH#insert validation path
-TEST_PATH = config.TEST_PATH#insert testing path
+#DATASET 1
+# TRAIN_PATH = File_Paths.TRAIN_PATH_1 #insert training path
+# TRAIN_PATH = f'{base_dir}//{TRAIN_PATH}'
+# VAL_PATH = File_Paths.VAL_PATH_1 #insert validation path
+# VAL_PATH = f'{base_dir}//{VAL_PATH}'
+
+#DATASET 2
+# TRAIN_PATH = File_Paths.TRAIN_PATH_2 #insert training path
+# TRAIN_PATH = f'{base_dir}//{TRAIN_PATH}'
+# VAL_PATH = File_Paths.VAL_PATH_2 #insert validation path
+# VAL_PATH = f'{base_dir}//{VAL_PATH}'
+
+#DATASET 3
+# TRAIN_PATH = File_Paths.TRAIN_PATH_3 #insert training path
+# TRAIN_PATH = f'{base_dir}//{TRAIN_PATH}'
+# VAL_PATH = File_Paths.VAL_PATH_3 #insert validation path
+# VAL_PATH = f'{base_dir}//{VAL_PATH}'
+
+#DATASET 4
+# TRAIN_PATH = File_Paths.TRAIN_PATH_4 #insert training path
+# TRAIN_PATH = f'{base_dir}//{TRAIN_PATH}'
+# VAL_PATH = File_Paths.VAL_PATH_4 #insert validation path
+# VAL_PATH = f'{base_dir}//{VAL_PATH}'
+
+#DATASET 5
+# TRAIN_PATH = File_Paths.TRAIN_PATH_5 #insert training path
+# TRAIN_PATH = f'{base_dir}//{TRAIN_PATH}'
+# VAL_PATH = File_Paths.VAL_PATH_5 #insert validation path
+# VAL_PATH = f'{base_dir}//{VAL_PATH}'
+
+TRAIN_PATH = File_Paths.FULL_TRAIN#insert training path
+TRAIN_PATH = f'{base_dir}//{TRAIN_PATH}'
+VAL_PATH = File_Paths.TEST_PATH#insert validation path
+VAL_PATH = f'{base_dir}//{VAL_PATH}'
+
+
+TEST_PATH = File_Paths.TEST_PATH#insert testing path
+TEST_PATH = f'{base_dir}//{TEST_PATH}'
 
 # determine the total number of image paths in training, validation,
 # and testing directories
@@ -36,15 +88,16 @@ trainPaths = list(paths.list_images(TRAIN_PATH)) # puts the image filenames into
 totalTrain = len(trainPaths) # just the number of training data
 totalVal = len(list(paths.list_images(VAL_PATH))) # just the number of validation data
 totalTest = len(list(paths.list_images(TEST_PATH))) # just the number of testing data
-
+#%%
 trainLabels = [int(p.split(os.path.sep)[-2]) for p in trainPaths] #making a list giving the score for each cell image
 no_0 = trainLabels.count(0) #number of negatives in the training dataset
 no_1 = trainLabels.count(1) #number of positives in the training dataset
 
 #determining the weight of each class, i.e. 0 and 1, for future use.
 #this is important because it takes into account the fact that we have an imbalance in class sizes.
-classWeight = [max(no_0,no_1)/no_0,max(no_0,no_1)/no_1] 
-
+classWeight = {0:max(no_0,no_1)/no_0,1:max(no_0,no_1)/no_1}
+print('definitions done')
+#%%
 # initialize the training data augmentation object
 # This is basically the blueprint that allows for the augmentation of training data to be done
 if augmentdata:
@@ -70,7 +123,7 @@ valAug = ImageDataGenerator(rescale=1 / 255.0)
 
 # initialize the training generator
 trainGen = trainAug.flow_from_directory(
-	config.TRAIN_PATH,
+	TRAIN_PATH,
 	class_mode="categorical",
 	target_size=(48, 48),
 	color_mode="rgb",
@@ -79,7 +132,7 @@ trainGen = trainAug.flow_from_directory(
 
 # initialize the validation generator
 valGen = valAug.flow_from_directory(
-	config.VAL_PATH,
+	VAL_PATH,
 	class_mode="categorical",
 	target_size=(48, 48),
 	color_mode="rgb",
@@ -88,17 +141,19 @@ valGen = valAug.flow_from_directory(
 
 # initialize the testing generator
 testGen = valAug.flow_from_directory(
-	config.TEST_PATH,
+	TEST_PATH,
 	class_mode="categorical",
 	target_size=(48, 48),
 	color_mode="rgb",
 	shuffle=False,
 	batch_size=BS)
 
+print("data augmented/sorted")
+
 # include early stopping through callback
 early_stopping = callbacks.EarlyStopping(
     min_delta=0.002,
-    patience=15,
+    patience=10,
     restore_best_weights=True,
 )
 
@@ -108,6 +163,8 @@ model = CancerNet.build(width=48, height=48, depth=3,
 opt = Adagrad(lr=INIT_LR, decay=INIT_LR / NUM_EPOCHS) #using Adagrad as the optimiser - stochastic gradient decay
 model.compile(loss="binary_crossentropy", optimizer=opt, metrics=["accuracy"]) #keeping these as history that we will use to call to plot graphs
 
+print('model built')
+#%%
 # fit the model
 H = model.fit(
 	x=trainGen,
@@ -118,6 +175,10 @@ H = model.fit(
 	epochs=NUM_EPOCHS,
 	callbacks=[early_stopping])
 
+print('model learned')
+
+model.save(f'{base_dir}\\models')
+#%%
 print('-'*15, 'evalution', '-'*15)
 
 # use the trained model to make predictions on the test dataset
@@ -126,6 +187,12 @@ predIdxs = model.predict(x=testGen, steps=(totalTest // BS) + 1)
 
 # find the index of the label with corresponding largest predicted probability
 predIdxs = np.argmax(predIdxs, axis=1)
+
+# construct the argument parser and parse the arguments
+ap = argparse.ArgumentParser()
+ap.add_argument("-p", "--plot", type=str, default="plot.png",  #name the plot here***
+	help="path to output loss/accuracy plot")
+args = vars(ap.parse_args())
 
 # confusion matrix
 cm = confusion_matrix(testGen.classes, predIdxs)
@@ -146,8 +213,8 @@ print("specificity: {:.4f}".format(specificity))
 H_history = pd.DataFrame(H.history)
 print("Minimum Validation Loss: {:0.4f}".format(H_history['val_loss'].min()))
 plt.style.use("ggplot")
-H_history.loc[0:, ['loss', 'val_loss', 'accuracy', 'val_accuracy]].plot()
+H_history.loc[0:, ['loss', 'val_loss', 'accuracy', 'val_accuracy']].plot()
 plt.title('Training Loss and Accuracy on Dataset')
 plt.xlabel('Epoch')
 plt.ylabel("Loss/Accuracy")
-plt.savefig(args["plot"])
+# plt.savefig(args["plot"])

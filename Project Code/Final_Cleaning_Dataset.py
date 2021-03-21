@@ -4,12 +4,12 @@
 # ## Integrating in the config file like the tutorial
 
 # In[ ]:
-
+print('started')
 
 from pathlib import Path
 import os
-os.chdir('C:\\Users\\liewz\\Desktop\\Imperial\\Academic\\Year 2\\I-Explore\\breast-cancer-classification\\breast-cancer-classification') 
-
+# os.chdir('C:\\Users\\liewz\\Desktop\\Imperial\\Academic\\Year 2\\I-Explore\\breast-cancer-classification\\breast-cancer-classification') 
+os.chdir('/content/drive/My Drive/Machine Learning/')
 from zipfile import ZipFile
 from imutils import paths
 import File_Paths
@@ -21,12 +21,12 @@ import numpy as np
 
 # In[ ]:
 
+"""IMPORTANT"""
 
-
-os.chdir('C:\\Users\\liewz\\Desktop\\Imperial\\Academic\\Year 2\\I-Explore\\breast-cancer-classification\\breast-cancer-classification') 
+# os.chdir('C:\\Users\\liewz\\Desktop\\Imperial\\Academic\\Year 2\\I-Explore\\breast-cancer-classification\\breast-cancer-classification') 
 #this is where the zipfile of datasets should be
-#change to downloads
 
+os.chdir('/content/drive/My Drive/Machine Learning/') #this one is for the google drive specifically
 
 # In[ ]:
 
@@ -49,8 +49,8 @@ except:
 
 
 
-with ZipFile('./archive.zip', 'r') as zip_ref:
-    zip_ref.extractall(f'{base_dir}/datasets/orig')
+#with ZipFile('./archive.zip', 'r') as zip_ref:
+#    zip_ref.extractall(f'{base_dir}/datasets/orig')
 
 
 os.chdir(f'{base_dir}')
@@ -88,7 +88,7 @@ print('PatientPaths: ', patientPaths [:2:], 'Length:', len(patientPaths))
 print('TrainPaths: ', trainPaths [:2:],'Length:', len(trainPaths))
 print('TestPaths:', testPaths [:2:], 'Length:', len(testPaths))
 
-
+print('1')
 #%%
 traindir = [[],[],[],[],[]]
 for i in range(len(train_val_splits)):
@@ -128,6 +128,8 @@ for i in trainPaths:
 fullimageTrainPaths=[]
 for i in fulltraindir:
     fullimageTrainPaths += list(paths.list_images(i))
+    
+print('2')
 #%%
 # defining new datasets
 datasets = [
@@ -166,7 +168,7 @@ for (dType, imagePaths, baseOutput) in datasets:
         label = filename[-5:-4]
 
         # build the path to the label directory
-        labelPath = os.path.sep.join([baseOutput, label])
+        labelPath = f'{baseOutput}//{label}'
 
         # if the label output directory does not exist, create it
         if not os.path.exists(labelPath):
@@ -175,19 +177,19 @@ for (dType, imagePaths, baseOutput) in datasets:
 
         # construct the path to the destination image and then copy
         # the image itself
-        p = os.path.sep.join([labelPath, filename])
+        p = f'{labelPath}//{filename}'
         shutil.copy2(inputPath, p)
 
 
 # In[ ]:
 
 
-print('[INFO] Summary of the Cleaned dataset:')
+# print('[INFO] Summary of the Cleaned dataset:')
 
-print('Training: IDC Negative:', len(os.listdir('./datasets/idc/training/0')))
-print('Training: IDC Positive:', len(os.listdir('./datasets/idc/training/1')))
-# print('Validation: IDC Negative:', len(os.listdir('./datasets/idc/validation/0')))
-# print('Validation: IDC Positive:', len(os.listdir('./datasets/idc/validation/1')))
-print('Testing: IDC Negative:', len(os.listdir('./datasets/idc/testing/0')))
-print('Testing: IDC Positive:', len(os.listdir('./datasets/idc/testing/1')))
+# print('Training: IDC Negative:', len(os.listdir('./datasets/idc/training/0')))
+# print('Training: IDC Positive:', len(os.listdir('./datasets/idc/training/1')))
+# # print('Validation: IDC Negative:', len(os.listdir('./datasets/idc/validation/0')))
+# # print('Validation: IDC Positive:', len(os.listdir('./datasets/idc/validation/1')))
+# print('Testing: IDC Negative:', len(os.listdir('./datasets/idc/testing/0')))
+# print('Testing: IDC Positive:', len(os.listdir('./datasets/idc/testing/1')))
 
