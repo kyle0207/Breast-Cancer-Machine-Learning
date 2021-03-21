@@ -15,7 +15,7 @@ This **has** to be done in File_Paths.py, Final_Cleaning_Dataset.py, and Trainin
 	- Final_Cleaning_Dataset.py and Training_and_Validation.py:
 		- Change the argument of os.chdir() contained within the import library cell to the project directory as desired.
 
-**Downloading dataset**:
+**Downloading the dataset**:
 The dataset can be downloaded at "https://www.kaggle.com/paultimothymooney/breast-histopathology-images/download". The file will be downloaded as a zip file and it should be placed within the base directory mentioned above. The codes should take care of sorting the data out into appropriate subdirectories. **Do not decompress the zipfile before running the codes.**
 
 **Order of running code**:
